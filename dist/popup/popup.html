@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Toolbox</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div class="popup-root">
+    <!-- Header -->
+    <header class="popup-header">
+      <div class="popup-logo">
+        <span class="popup-logo-icon">🧰</span>
+        <span class="popup-logo-text">AI Toolbox</span>
+      </div>
+      <div class="popup-tier" id="popup-tier">Free</div>
+    </header>
+
+    <!-- Stats Bar -->
+    <div class="popup-stats" id="popup-stats">
+      <div class="stat-item">
+        <div class="stat-value" id="stat-chats">-</div>
+        <div class="stat-label">Chats</div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <div class="stat-value" id="stat-folders">-</div>
+        <div class="stat-label">Folders</div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <div class="stat-value" id="stat-prompts">-</div>
+        <div class="stat-label">Prompts</div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="popup-tabs">
+      <button class="tab-btn active" data-tab="prompts" id="tab-prompts">✨ Prompts</button>
+      <button class="tab-btn" data-tab="folders" id="tab-folders">📁 Folders</button>
+      <button class="tab-btn" data-tab="settings" id="tab-settings">⚙️ Settings</button>
+    </div>
+
+    <!-- Tab: Prompts -->
+    <div class="tab-panel active" id="panel-prompts">
+      <div class="panel-toolbar">
+        <input class="search-input" id="prompt-search" placeholder="Filter prompts..." />
+        <button class="add-btn" id="add-prompt-btn" title="New prompt">+</button>
+      </div>
+      <div class="item-list" id="prompt-list">
+        <div class="loading">Loading prompts...</div>
+      </div>
+
+      <!-- Add/Edit Prompt Form (hidden by default) -->
+      <div class="form-panel hidden" id="prompt-form">
+        <div class="form-title" id="form-title">New Prompt</div>
+        <label class="form-label">Title</label>
+        <input class="form-input" id="prompt-title-input" placeholder="e.g. Blog post outline" />
+        <label class="form-label">Prompt body <span class="hint">Use {{variable}} for placeholders</span></label>
+        <textarea class="form-textarea" id="prompt-body-input" placeholder="Write your prompt here...&#10;&#10;You can use {{topic}}, {{tone}}, etc."></textarea>
+        <div class="form-actions">
+          <button class="btn btn-ghost" id="cancel-prompt-btn">Cancel</button>
+          <button class="btn btn-primary" id="save-prompt-btn">Save</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Folders -->
+    <div class="tab-panel hidden" id="panel-folders">
+      <div class="panel-toolbar">
+        <span class="panel-label">Manage Folders</span>
+        <button class="add-btn" id="add-folder-btn" title="New folder">+</button>
+      </div>
+      <div class="item-list" id="folder-list">
+        <div class="loading">Loading folders...</div>
+      </div>
+    </div>
+
+    <!-- Tab: Settings -->
+    <div class="tab-panel hidden" id="panel-settings">
+      <div class="settings-section">
+        <div class="settings-title">Plan</div>
+        <div class="plan-card" id="plan-card">
+          <div class="plan-name" id="plan-name">Free Plan</div>
+          <div class="plan-limits">
+            <div class="limit-row">
+              <span>Folders</span>
+              <span id="limit-folders">0 / 10</span>
+            </div>
+            <div class="limit-row">
+              <span>Prompts</span>
+              <span id="limit-prompts">0 / 20</span>
+            </div>
+            <div class="limit-row">
+              <span>Search results</span>
+              <span id="limit-search">5 per query</span>
+            </div>
+          </div>
+        </div>
+        <div class="upgrade-hint" id="upgrade-hint">
+          Unlock unlimited folders, prompts &amp; search with Pro.
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-title">License Key</div>
+        <div class="license-row">
+          <input class="form-input" id="license-input" placeholder="Paste your license key..." type="password" />
+          <button class="btn btn-primary" id="activate-btn">Activate</button>
+        </div>
+        <div class="license-status" id="license-status"></div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-title">Quick Actions</div>
+        <button class="action-btn" id="open-chatgpt-btn">Open ChatGPT →</button>
+        <button class="action-btn" id="open-claude-btn">Open Claude →</button>
+        <button class="action-btn danger" id="clear-data-btn">Clear All Local Data</button>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="popup-footer">
+      <span>AI Toolbox v1.0</span>
+      <a href="https://chatgpt.com" target="_blank" class="footer-link">ChatGPT</a>
+      <a href="https://claude.ai" target="_blank" class="footer-link">Claude</a>
+    </footer>
+  </div>
+
+  <script type="module" src="popup.js"></script>
+</body>
+</html>
