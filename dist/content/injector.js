@@ -6134,183 +6134,161 @@
 		}
 	};
 	//#endregion
+	//#region src/styles/shadow.css?inline
+	var shadow_default = "/**\n * Shadow CSS — Injected into Shadow DOM\n */\n\n:host {\n  all: initial;\n  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;\n  color-scheme: dark light;\n}\n\n*,\n*::before,\n*::after {\n  box-sizing: border-box;\n  margin: 0;\n  padding: 0;\n}\n\n/* ─── Sandcastle Theme Tokens ───────────────────────────────────────── */\n:host {\n  --at-bg: #1c1a18;\n  --at-bg-2: #25221f;\n  --at-surface: #302d29;\n  --at-surface-2: #3a3631;\n  --at-border: #3f3a35;\n  --at-border-hover: #544e47;\n\n  --at-accent: #df6b4b;\n  --at-accent-hover: #eb7c5e;\n  --at-accent-glow: rgba(223, 107, 75, 0.25);\n\n  --at-text: #f3efe9;\n  --at-text-muted: #b0a9a0;\n  --at-text-faint: #857e75;\n\n  --at-success: #34d399;\n  --at-warning: #fbbf24;\n  --at-danger: #f87171;\n\n  --at-radius-sm: 6px;\n  --at-radius: 10px;\n  --at-radius-lg: 16px;\n  --at-radius-xl: 20px;\n\n  --at-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);\n  --at-shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.5);\n  --at-shadow-accent: 0 0 24px var(--at-accent-glow);\n\n  --at-transition: 0.18s cubic-bezier(0.4, 0, 0.2, 1);\n  --at-sidebar-width: 240px;\n}\n\n/* ─── Scrollbars ─────────────────────────────────────────────────────── */\n::-webkit-scrollbar {\n  width: 4px;\n  height: 4px;\n}\n\n::-webkit-scrollbar-track {\n  background: transparent;\n}\n\n::-webkit-scrollbar-thumb {\n  background: var(--at-border-hover);\n  border-radius: 2px;\n}\n\n::-webkit-scrollbar-thumb:hover {\n  background: var(--at-text-faint);\n}\n\n/* ─── Sidebar ─────────────────────────────────────────────────────────── */\n.at-sidebar {\n  width: var(--at-sidebar-width);\n  background: var(--at-bg-2);\n  border-bottom: 1px solid var(--at-border);\n  padding: 8px 0 4px;\n  overflow: hidden;\n}\n\n.at-sidebar-header {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  padding: 6px 12px;\n  margin-bottom: 4px;\n}\n\n.at-sidebar-title {\n  font-size: 10px;\n  font-weight: 600;\n  letter-spacing: 0.08em;\n  text-transform: uppercase;\n  color: var(--at-text-faint);\n}\n\n.at-icon-btn {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 22px;\n  height: 22px;\n  border: none;\n  background: transparent;\n  border-radius: var(--at-radius-sm);\n  color: var(--at-text-muted);\n  cursor: pointer;\n  transition: background var(--at-transition), color var(--at-transition);\n}\n\n.at-icon-btn:hover {\n  background: var(--at-surface);\n  color: var(--at-text);\n}\n\n.at-icon-btn svg {\n  width: 14px;\n  height: 14px;\n  flex-shrink: 0;\n}\n\n/* ─── Folder List ─────────────────────────────────────────────────────── */\n.at-folder-list {\n  list-style: none;\n  padding: 0 6px;\n  display: flex;\n  flex-direction: column;\n  gap: 1px;\n}\n\n.at-folder-item {\n  display: flex;\n  align-items: center;\n  gap: 6px;\n  padding: 5px 6px;\n  border-radius: var(--at-radius-sm);\n  cursor: pointer;\n  transition: background var(--at-transition);\n  user-select: none;\n  position: relative;\n}\n\n.at-folder-item:hover {\n  background: var(--at-surface);\n}\n\n.at-folder-item.at-active {\n  background: var(--at-surface-2);\n}\n\n.at-folder-item.at-drag-over {\n  background: var(--at-accent-glow);\n  outline: 1px dashed var(--at-accent);\n}\n\n.at-folder-icon {\n  font-size: 13px;\n  flex-shrink: 0;\n}\n\n.at-folder-name {\n  flex: 1;\n  font-size: 13px;\n  color: var(--at-text);\n  overflow: hidden;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n}\n\n.at-folder-actions {\n  display: none;\n  gap: 2px;\n  position: absolute;\n  right: 4px;\n}\n\n.at-folder-item:hover .at-folder-actions {\n  display: flex;\n}\n\n/* ─── Pinned Chats ───────────────────────────────────────────────────── */\n.at-pinned-section {\n  padding: 0 6px 4px;\n}\n\n.at-pinned-chat {\n  display: flex;\n  align-items: center;\n  gap: 6px;\n  padding: 4px 6px;\n  border-radius: var(--at-radius-sm);\n  cursor: pointer;\n  text-decoration: none;\n  transition: background var(--at-transition);\n}\n\n.at-pinned-chat:hover {\n  background: var(--at-surface);\n}\n\n.at-pinned-chat-icon {\n  font-size: 11px;\n  flex-shrink: 0;\n}\n\n.at-pinned-chat-title {\n  font-size: 12px;\n  color: var(--at-text-muted);\n  overflow: hidden;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n}\n\n/* ─── Search Modal Overlay ───────────────────────────────────────────── */\n.at-search-overlay {\n  position: fixed !important;\n  inset: 0 !important;\n  width: 100vw !important;\n  height: 100vh !important;\n  display: flex !important;\n  align-items: flex-start !important;\n  justify-content: center !important;\n  padding-top: 15vh !important;\n  z-index: 2147483647 !important;\n  background: rgba(20, 18, 16, 0.75) !important;\n  backdrop-filter: blur(4px) !important;\n  -webkit-backdrop-filter: blur(4px) !important;\n  animation: at-overlay-in var(--at-transition) ease;\n}\n\n@keyframes at-overlay-in {\n  from {\n    opacity: 0;\n  }\n\n  to {\n    opacity: 1;\n  }\n}\n\n.at-search-modal {\n  width: 650px !important;\n  max-width: 90vw !important;\n  max-height: 70vh;\n  background: var(--at-bg-2);\n  border: 1px solid var(--at-border);\n  border-radius: 12px !important;\n  box-shadow: var(--at-shadow-lg), var(--at-shadow-accent);\n  overflow: hidden;\n  display: flex;\n  flex-direction: column;\n  animation: at-modal-in 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);\n}\n\n@keyframes at-modal-in {\n  from {\n    opacity: 0;\n    transform: translateY(-20px) scale(0.97);\n  }\n\n  to {\n    opacity: 1;\n    transform: translateY(0) scale(1);\n  }\n}\n\n.at-search-header {\n  display: flex;\n  align-items: center;\n  gap: 10px;\n  padding: 14px 16px;\n  border-bottom: 1px solid var(--at-border);\n}\n\n.at-search-input {\n  flex: 1;\n  background: transparent;\n  border: none;\n  outline: none;\n  font-size: 18px !important;\n  font-family: inherit;\n  color: var(--at-text);\n}\n\n.at-search-input::placeholder {\n  color: var(--at-text-faint);\n}\n\n.at-search-close {\n  background: transparent;\n  border: none;\n  color: var(--at-text-muted);\n  cursor: pointer;\n  font-size: 16px;\n}\n\n.at-search-close:hover {\n  color: var(--at-text);\n}\n\n.at-platform-pills {\n  display: flex;\n  gap: 12px;\n  padding: 8px 16px;\n  border-bottom: 1px solid var(--at-border);\n  font-size: 12px;\n  background: var(--at-bg);\n}\n\n.at-pill {\n  display: flex;\n  align-items: center;\n  gap: 6px;\n  color: var(--at-text-muted);\n}\n\n.at-search-results {\n  flex: 1;\n  overflow-y: auto;\n  padding: 8px;\n}\n\n.at-search-platform-group {\n  margin-bottom: 8px;\n}\n\n.at-search-platform-label {\n  display: flex;\n  align-items: center;\n  gap: 6px;\n  padding: 4px 8px;\n  font-size: 10px;\n  font-weight: 600;\n  letter-spacing: 0.08em;\n  text-transform: uppercase;\n  color: var(--at-text-faint);\n}\n\n.at-search-platform-dot {\n  width: 6px;\n  height: 6px;\n  border-radius: 50%;\n}\n\n.at-platform-dot-chatgpt {\n  background: #10a37f;\n}\n\n.at-platform-dot-claude {\n  background: #d97706;\n}\n\n.at-platform-dot-gemini {\n  background: #3b82f6;\n}\n\n.at-platform-dot-grok {\n  background: #94a3b8;\n}\n\n.at-search-result {\n  display: flex;\n  flex-direction: column;\n  padding: 9px 12px;\n  border-radius: var(--at-radius);\n  cursor: pointer;\n  transition: background var(--at-transition);\n  text-decoration: none;\n}\n\n.at-search-result:hover,\n.at-search-result.at-selected {\n  background: var(--at-surface);\n}\n\n.at-result-top {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  margin-bottom: 2px;\n}\n\n.at-result-title {\n  font-size: 14px;\n  font-weight: 500;\n  color: var(--at-text);\n}\n\n.at-result-date {\n  font-size: 11px;\n  color: var(--at-text-faint);\n}\n\n.at-result-snippet {\n  font-size: 12px;\n  color: var(--at-text-muted);\n  overflow: hidden;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n}\n\n.at-highlight {\n  background-color: var(--at-accent);\n  color: #1c1a18;\n  padding: 0 2px;\n  border-radius: 2px;\n  font-weight: 500;\n}\n\n.at-search-empty {\n  padding: 32px 16px;\n  text-align: center;\n  color: var(--at-text-faint);\n  font-size: 14px;\n}\n\n/* ─── Prompt Menu ─────────────────────────────────────────────────────── */\n.at-prompt-menu {\n  position: fixed;\n  z-index: 999998;\n  width: 320px;\n  max-height: 300px;\n  background: var(--at-bg-2);\n  border: 1px solid var(--at-border);\n  border-radius: var(--at-radius-lg);\n  box-shadow: var(--at-shadow-lg);\n  overflow: hidden;\n  display: flex;\n  flex-direction: column;\n  animation: at-modal-in 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);\n}\n\n.at-prompt-search {\n  display: flex;\n  align-items: center;\n  gap: 8px;\n  padding: 10px 12px;\n  border-bottom: 1px solid var(--at-border);\n}\n\n.at-prompt-search-icon {\n  font-size: 13px;\n  color: var(--at-accent);\n  flex-shrink: 0;\n}\n\n.at-prompt-search-input {\n  flex: 1;\n  background: transparent;\n  border: none;\n  outline: none;\n  font-size: 13px;\n  font-family: inherit;\n  color: var(--at-text);\n}\n\n.at-prompt-search-input::placeholder {\n  color: var(--at-text-faint);\n}\n\n.at-prompt-list {\n  flex: 1;\n  overflow-y: auto;\n  padding: 6px;\n}\n\n.at-prompt-item {\n  display: flex;\n  flex-direction: column;\n  gap: 2px;\n  padding: 8px 10px;\n  border-radius: var(--at-radius-sm);\n  cursor: pointer;\n  transition: background var(--at-transition);\n}\n\n.at-prompt-item:hover,\n.at-prompt-item.at-selected {\n  background: var(--at-surface);\n}\n\n.at-prompt-title {\n  font-size: 13px;\n  font-weight: 500;\n  color: var(--at-text);\n}\n\n.at-prompt-preview {\n  font-size: 11px;\n  color: var(--at-text-faint);\n  overflow: hidden;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n}\n\n/* ─── Export Button ───────────────────────────────────────────────────── */\n.at-export-btn {\n  display: inline-flex;\n  align-items: center;\n  gap: 6px;\n  padding: 6px 12px;\n  background: var(--at-surface);\n  border: 1px solid var(--at-border);\n  border-radius: var(--at-radius-sm);\n  color: var(--at-text-muted);\n  font-size: 12px;\n  font-family: inherit;\n  cursor: pointer;\n  transition: all var(--at-transition);\n  white-space: nowrap;\n}\n\n.at-export-btn:hover {\n  background: var(--at-surface-2);\n  border-color: var(--at-border-hover);\n  color: var(--at-text);\n}\n\n.at-export-dropdown {\n  position: absolute;\n  top: calc(100% + 6px);\n  right: 0;\n  width: 180px;\n  background: var(--at-bg-2);\n  border: 1px solid var(--at-border);\n  border-radius: var(--at-radius);\n  box-shadow: var(--at-shadow);\n  overflow: hidden;\n  z-index: 100;\n  animation: at-modal-in 0.15s ease;\n}\n\n.at-export-option {\n  display: flex;\n  align-items: center;\n  gap: 8px;\n  padding: 9px 12px;\n  cursor: pointer;\n  font-size: 13px;\n  color: var(--at-text-muted);\n  transition: background var(--at-transition);\n}\n\n.at-export-option:hover {\n  background: var(--at-surface);\n  color: var(--at-text);\n}\n\n/* ─── Inline Input (folder rename) ───────────────────────────────────── */\n.at-inline-input {\n  background: var(--at-surface-2);\n  border: 1px solid var(--at-accent);\n  border-radius: 4px;\n  color: var(--at-text);\n  font-size: 13px;\n  font-family: inherit;\n  padding: 2px 6px;\n  outline: none;\n  width: 100%;\n}\n\n/* ─── Variable Fill Dialog ────────────────────────────────────────────── */\n.at-var-dialog {\n  position: fixed;\n  inset: 0;\n  z-index: 9999999;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  background: rgba(0, 0, 0, 0.7);\n  backdrop-filter: blur(6px);\n}\n\n.at-var-dialog-box {\n  width: 400px;\n  background: var(--at-bg-2);\n  border: 1px solid var(--at-border);\n  border-radius: var(--at-radius-xl);\n  box-shadow: var(--at-shadow-lg);\n  padding: 20px;\n  animation: at-modal-in 0.2s ease;\n}\n\n.at-var-dialog-title {\n  font-size: 15px;\n  font-weight: 600;\n  color: var(--at-text);\n  margin-bottom: 12px;\n}\n\n.at-var-dialog-label {\n  font-size: 12px;\n  color: var(--at-text-muted);\n  margin-bottom: 4px;\n  margin-top: 10px;\n}\n\n.at-var-dialog-input {\n  width: 100%;\n  background: var(--at-surface);\n  border: 1px solid var(--at-border);\n  border-radius: var(--at-radius-sm);\n  color: var(--at-text);\n  font-size: 13px;\n  font-family: inherit;\n  padding: 8px 10px;\n  outline: none;\n  transition: border-color var(--at-transition);\n}\n\n.at-var-dialog-input:focus {\n  border-color: var(--at-accent);\n}\n\n.at-var-dialog-actions {\n  display: flex;\n  gap: 8px;\n  margin-top: 16px;\n  justify-content: flex-end;\n}\n\n.at-btn {\n  padding: 7px 14px;\n  border-radius: var(--at-radius-sm);\n  font-size: 13px;\n  font-family: inherit;\n  cursor: pointer;\n  transition: all var(--at-transition);\n  border: 1px solid transparent;\n}\n\n.at-btn-primary {\n  background: var(--at-accent);\n  color: white;\n  border-color: var(--at-accent);\n}\n\n.at-btn-primary:hover {\n  background: var(--at-accent-hover);\n}\n\n.at-btn-ghost {\n  background: transparent;\n  color: var(--at-text-muted);\n  border-color: var(--at-border);\n}\n\n.at-btn-ghost:hover {\n  background: var(--at-surface);\n  color: var(--at-text);\n}\n\n/* ─── Context menu ───────────────────────────────────────────────────── */\n.at-context-menu {\n  position: fixed;\n  z-index: 9999999;\n  background: var(--at-bg-2);\n  border: 1px solid var(--at-border);\n  border-radius: var(--at-radius);\n  box-shadow: var(--at-shadow);\n  overflow: hidden;\n  min-width: 160px;\n  animation: at-modal-in 0.12s ease;\n}\n\n.at-context-item {\n  display: flex;\n  align-items: center;\n  gap: 8px;\n  padding: 8px 12px;\n  font-size: 13px;\n  color: var(--at-text-muted);\n  cursor: pointer;\n  transition: background var(--at-transition);\n}\n\n.at-context-item:hover {\n  background: var(--at-surface);\n  color: var(--at-text);\n}\n\n.at-context-item.at-danger:hover {\n  background: rgba(248, 113, 113, 0.1);\n  color: var(--at-danger);\n}\n\n.at-context-separator {\n  height: 1px;\n  background: var(--at-border);\n  margin: 4px 0;\n}";
+	//#endregion
 	//#region src/content/ui/search-modal.js
 	/**
-	* Ctrl+Shift+F / Alt+K  — Global Search Modal
-	* Opens as an overlay on ChatGPT / Claude pages.
-	* Searches the local MiniSearch index across both platforms.
-	*
-	* Fixed bugs:
-	* 1. Event Isolation: keydown/keyup on overlay call stopPropagation()
-	*    so ChatGPT's React handlers never see them.
-	* 2. Results grouped by platform with badge headers.
-	* 3. _highlight() wraps matches in <mark class="at-highlight">.
-	* 4. ArrowUp/Down/Enter keyboard nav with selectedIndex across flat results.
-	*    Enter opens in new tab via window.open(url, '_blank').
-	* 5. Clean empty state: 'No matches found for "<query>"'.
+	* Cmd+K / Ctrl+Shift+F Global Search Modal
+	* Implements a document.body Portal to escape ChatGPT's sidebar CSS constraints.
 	*/
 	var SearchModal = class {
-		constructor(shadowRoot) {
-			this.shadow = shadowRoot;
+		constructor() {
 			this.isOpen = false;
 			this.selectedIndex = 0;
 			this.results = {};
 			this.flatResults = [];
 			this.debounceTimer = null;
-			this.lastQuery = "";
 			this._setupKeyboardShortcut();
 		}
 		_setupKeyboardShortcut() {
 			document.addEventListener("keydown", (e) => {
-				if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === "f" || e.altKey && e.key.toLowerCase() === "k") {
+				if ((e.metaKey || e.ctrlKey) && e.shiftKey && (e.key === "." || e.key === ">" || e.key.toLowerCase() === "f") || e.altKey && e.key.toLowerCase() === "k") {
 					e.preventDefault();
 					e.stopPropagation();
 					this.toggle();
-					return;
 				}
-				if (e.key === "Escape" && this.isOpen) {
-					e.preventDefault();
-					e.stopPropagation();
-					this.close();
-				}
+				if (e.key === "Escape" && this.isOpen) this.close();
 			});
-			try {
-				chrome.runtime?.onMessage?.addListener((msg) => {
-					if (msg.type === "OPEN_SEARCH") this.open();
-				});
-			} catch (_) {}
+			chrome.runtime?.onMessage?.addListener((msg) => {
+				if (msg.type === "OPEN_SEARCH") this.open();
+			});
 		}
 		toggle() {
 			this.isOpen ? this.close() : this.open();
+		}
+		_getPortalShadow() {
+			let portalHost = document.getElementById("at-search-portal-root");
+			if (!portalHost) {
+				portalHost = document.createElement("div");
+				portalHost.id = "at-search-portal-root";
+				document.body.appendChild(portalHost);
+				const shadow = portalHost.attachShadow({ mode: "open" });
+				const style = document.createElement("style");
+				style.textContent = shadow_default;
+				shadow.appendChild(style);
+			}
+			return document.getElementById("at-search-portal-root").shadowRoot;
 		}
 		async open() {
 			if (this.isOpen) return;
 			this.isOpen = true;
 			await initSearchIndex();
+			const portalShadow = this._getPortalShadow();
+			portalShadow.getElementById("at-search-overlay")?.remove();
 			const overlay = document.createElement("div");
 			overlay.className = "at-search-overlay";
 			overlay.id = "at-search-overlay";
+			overlay.addEventListener("keydown", (e) => e.stopPropagation());
+			overlay.addEventListener("keyup", (e) => e.stopPropagation());
 			overlay.innerHTML = this._renderModal();
-			this.shadow.appendChild(overlay);
-			overlay.addEventListener("keydown", (e) => e.stopPropagation(), true);
-			overlay.addEventListener("keyup", (e) => e.stopPropagation(), true);
-			overlay.addEventListener("keypress", (e) => e.stopPropagation(), true);
-			this.shadow.getElementById("at-search-input")?.focus();
-			this._bindModalEvents(overlay);
+			portalShadow.appendChild(overlay);
+			portalShadow.getElementById("at-search-input")?.focus();
+			this._bindModalEvents(overlay, portalShadow);
 		}
 		close() {
 			this.isOpen = false;
 			this.selectedIndex = 0;
 			this.results = {};
 			this.flatResults = [];
-			this.lastQuery = "";
-			clearTimeout(this.debounceTimer);
-			this.shadow.getElementById("at-search-overlay")?.remove();
+			const portalShadow = document.getElementById("at-search-portal-root")?.shadowRoot;
+			if (portalShadow) portalShadow.getElementById("at-search-overlay")?.remove();
 		}
 		_renderModal() {
 			return `
       <div class="at-search-modal" role="dialog" aria-label="AI Toolbox Search">
         <div class="at-search-header">
-          <span class="at-search-icon">🔍</span>
           <input
             class="at-search-input"
             id="at-search-input"
             type="text"
-            placeholder="Search across ChatGPT &amp; Claude..."
+            placeholder="Search all platforms..."
             autocomplete="off"
             spellcheck="false"
           />
-          <span class="at-search-shortcut">Esc</span>
+          <button class="at-search-close" id="at-search-close-btn">✕</button>
         </div>
-        <div class="at-search-platform-pills" id="at-search-pills" style="display:none;"></div>
+        <div id="at-platform-pills" class="at-platform-pills"></div>
         <div class="at-search-results" id="at-search-results">
           <div class="at-search-empty" id="at-search-placeholder">
-            Start typing to search your AI chats…
+            Start typing to search across ChatGPT, Claude, Gemini, and Grok...
           </div>
-        </div>
-        <div class="at-search-footer">
-          <span><span class="at-kbd">↑↓</span> Navigate</span>
-          <span><span class="at-kbd">↵</span> Open</span>
-          <span><span class="at-kbd">Esc</span> Close</span>
-          <span style="margin-left:auto;"><span class="at-kbd">Ctrl+Shift+F</span></span>
         </div>
       </div>
     `;
 		}
-		_bindModalEvents(overlay) {
-			const input = this.shadow.getElementById("at-search-input");
-			const resultsContainer = this.shadow.getElementById("at-search-results");
+		_bindModalEvents(overlay, portalShadow) {
+			const input = portalShadow.getElementById("at-search-input");
+			const resultsContainer = portalShadow.getElementById("at-search-results");
+			const closeBtn = portalShadow.getElementById("at-search-close-btn");
 			overlay.addEventListener("click", (e) => {
 				if (e.target === overlay) this.close();
 			});
-			input?.addEventListener("input", () => {
+			closeBtn?.addEventListener("click", () => this.close());
+			input?.addEventListener("input", (e) => {
 				clearTimeout(this.debounceTimer);
+				const query = e.target.value.trim();
 				this.debounceTimer = setTimeout(() => {
-					this._performSearch(input.value.trim());
-				}, 120);
+					this._performSearch(query, portalShadow);
+				}, 150);
 			});
-			input?.addEventListener("keydown", (e) => {
+			input?.addEventListener("keydown", async (e) => {
 				if (e.key === "ArrowDown") {
 					e.preventDefault();
-					if (this.flatResults.length > 0) {
-						this.selectedIndex = Math.min(this.selectedIndex + 1, this.flatResults.length - 1);
-						this._updateSelection();
-					}
+					this.selectedIndex = Math.min(this.selectedIndex + 1, this.flatResults.length - 1);
+					this._updateSelection(portalShadow);
 				} else if (e.key === "ArrowUp") {
 					e.preventDefault();
-					if (this.flatResults.length > 0) {
-						this.selectedIndex = Math.max(this.selectedIndex - 1, 0);
-						this._updateSelection();
-					}
+					this.selectedIndex = Math.max(this.selectedIndex - 1, 0);
+					this._updateSelection(portalShadow);
 				} else if (e.key === "Enter") {
 					e.preventDefault();
 					const selected = this.flatResults[this.selectedIndex];
-					if (selected?.url) this._openChat(selected.url);
-				} else if (e.key === "Escape") {
-					e.preventDefault();
-					this.close();
+					if (selected?.url) {
+						window.open(selected.url, "_blank");
+						this.close();
+					}
 				}
 			});
 			resultsContainer?.addEventListener("click", (e) => {
 				const resultEl = e.target.closest(".at-search-result");
-				if (resultEl?.dataset.url) this._openChat(resultEl.dataset.url);
+				if (resultEl?.dataset.url) {
+					window.open(resultEl.dataset.url, "_blank");
+					this.close();
+				}
 			});
 		}
-		_openChat(url) {
-			this.close();
-			window.open(url, "_blank");
-		}
-		async _performSearch(query) {
-			const resultsContainer = this.shadow.getElementById("at-search-results");
-			const pillsContainer = this.shadow.getElementById("at-search-pills");
+		async _performSearch(query, portalShadow) {
+			const resultsContainer = portalShadow.getElementById("at-search-results");
+			const pillsContainer = portalShadow.getElementById("at-platform-pills");
 			if (!resultsContainer) return;
 			if (!query) {
-				resultsContainer.innerHTML = `<div class="at-search-empty">Start typing to search your AI chats…</div>`;
-				if (pillsContainer) pillsContainer.style.display = "none";
+				resultsContainer.innerHTML = `<div class="at-search-empty">Start typing to search across ChatGPT, Claude, Gemini, and Grok...</div>`;
+				if (pillsContainer) pillsContainer.innerHTML = "";
 				this.flatResults = [];
-				this.selectedIndex = 0;
 				return;
 			}
-			const tier = await getSetting("tier", "free");
-			const maxResults = tier === "pro" ? 50 : 10;
-			const grouped = await searchChats(query, { limit: maxResults });
+			const grouped = await searchChats(query, { limit: await getSetting("tier", "free") === "pro" ? 50 : 10 });
 			this.results = grouped;
 			this.flatResults = [];
 			this.selectedIndex = 0;
-			this.lastQuery = query;
-			for (const platform of ["chatgpt", "claude"]) if (grouped[platform]) this.flatResults.push(...grouped[platform]);
-			for (const platform of Object.keys(grouped)) if (platform !== "chatgpt" && platform !== "claude") this.flatResults.push(...grouped[platform]);
-			if (pillsContainer) {
-				if (this.flatResults.length > 0) {
-					pillsContainer.style.display = "flex";
-					pillsContainer.innerHTML = Object.entries(grouped).map(([plat, chats]) => `
-            <span class="at-search-pill at-platform-pill-${plat}">
-              <span class="at-search-platform-dot at-platform-dot-${plat}"></span>
-              ${this._platformName(plat)} <strong>${chats.length}</strong>
-            </span>
-          `).join("");
-				} else pillsContainer.style.display = "none";
-			}
+			for (const platform of Object.keys(grouped)) this.flatResults.push(...grouped[platform]);
+			if (pillsContainer) pillsContainer.innerHTML = Object.entries(grouped).map(([platform, chats]) => `
+        <span class="at-pill">
+          <span class="at-search-platform-dot at-platform-dot-${platform}"></span>
+          ${this._platformName(platform)} ${chats.length}
+        </span>
+      `).join("");
 			if (this.flatResults.length === 0) {
 				resultsContainer.innerHTML = `
         <div class="at-search-empty">
@@ -6319,79 +6297,34 @@
       `;
 				return;
 			}
-			let html = "";
-			for (const [plat, chats] of Object.entries(grouped)) html += `
-        <div class="at-search-platform-group">
-          <div class="at-search-platform-label">
-            <span class="at-search-platform-dot at-platform-dot-${plat}"></span>
-            ${this._platformName(plat)}
-            <span style="opacity:0.5">(${chats.length})</span>
+			resultsContainer.innerHTML = Object.entries(grouped).map(([platform, chats]) => `
+      <div class="at-search-platform-group">
+        <div class="at-search-platform-label">
+          <span class="at-search-platform-dot at-platform-dot-${platform}"></span>
+          ${this._platformName(platform)} <span class="at-match-count">${chats.length} matches</span>
+        </div>
+        ${chats.map((chat) => `
+          <div class="at-search-result ${this.flatResults[this.selectedIndex]?.id === chat.id ? "at-selected" : ""}" 
+               data-url="${this._esc(chat.url)}" data-id="${chat.id}">
+            <div class="at-result-top">
+              <div class="at-result-title">${this._highlight(chat.title, query)}</div>
+              <div class="at-result-date">${this._formatDate(chat.updatedAt)}</div>
+            </div>
+            <div class="at-result-snippet">${this._highlight(chat.content ? chat.content.slice(0, 120) + "..." : "", query)}</div>
           </div>
-          ${chats.map((chat) => {
-				const snippet = this._extractSnippet(chat, query);
-				return `
-            <div class="at-search-result" data-url="${this._esc(chat.url)}" data-id="${this._esc(chat.id)}">
-              <span class="at-result-icon">${this._platformIcon(plat)}</span>
-              <div class="at-result-info">
-                <div class="at-result-title">${this._highlight(chat.title || "Untitled", query)}</div>
-                ${snippet ? `<div class="at-result-snippet">${snippet}</div>` : ""}
-                <div class="at-result-meta">${this._formatDate(chat.updatedAt)}</div>
-              </div>
-              <span class="at-result-arrow">→</span>
-            </div>`;
-			}).join("")}
-        </div>
-      `;
-			resultsContainer.innerHTML = html;
-			if (tier === "free" && this.flatResults.length >= maxResults) resultsContainer.innerHTML += `
-        <div class="at-search-empty" style="padding:10px;font-size:11px;">
-          ✨ Upgrade to Pro to see all results
-        </div>
-      `;
-			this._updateSelection();
+        `).join("")}
+      </div>
+    `).join("");
+			this._updateSelection(portalShadow);
 		}
-		/**
-		* Extract a ~120-char snippet from the stored content around the
-		* first occurrence of any query term.  Falls back to the first 120
-		* chars of content if no term is found directly.
-		*/
-		_extractSnippet(chat, query) {
-			const content = chat.content;
-			if (!content || typeof content !== "string" || content.length === 0) return "";
-			const terms = query.toLowerCase().split(/\s+/).filter(Boolean);
-			const contentLower = content.toLowerCase();
-			let matchIndex = -1;
-			for (const term of terms) {
-				const idx = contentLower.indexOf(term);
-				if (idx >= 0) {
-					matchIndex = idx;
-					break;
-				}
-			}
-			let snippet;
-			const SNIPPET_LEN = 120;
-			if (matchIndex >= 0) {
-				const start = Math.max(0, matchIndex - Math.floor(SNIPPET_LEN / 2));
-				const end = Math.min(content.length, start + SNIPPET_LEN);
-				snippet = (start > 0 ? "…" : "") + content.slice(start, end).trim() + (end < content.length ? "…" : "");
-			} else snippet = content.slice(0, SNIPPET_LEN).trim() + (content.length > SNIPPET_LEN ? "…" : "");
-			return this._highlight(snippet, query);
-		}
-		/**
-		* Wraps all occurrences of each query term in
-		* <mark class="at-highlight">…</mark>.
-		* Escapes HTML first to prevent XSS.
-		*/
 		_highlight(text, query) {
-			if (!text || !query) return this._esc(text || "");
-			const escaped = this._esc(text);
-			const terms = query.split(/\s+/).filter(Boolean).map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
-			if (!terms.length) return escaped;
-			const pattern = new RegExp(`(${terms.join("|")})`, "gi");
-			return escaped.replace(pattern, "<mark class=\"at-highlight\">$1</mark>");
+			if (!text || !query) return this._esc(text);
+			const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+			const regex = new RegExp(`(${escapedQuery})`, "gi");
+			return this._esc(text).replace(regex, "<mark class=\"at-highlight\">$1</mark>");
 		}
-		_updateSelection() {
-			this.shadow.querySelectorAll(".at-search-result").forEach((el, i) => {
+		_updateSelection(portalShadow) {
+			portalShadow.querySelectorAll(".at-search-result").forEach((el, i) => {
 				el.classList.toggle("at-selected", i === this.selectedIndex);
 				if (i === this.selectedIndex) el.scrollIntoView({
 					block: "nearest",
@@ -6402,21 +6335,15 @@
 		_platformName(platform) {
 			return {
 				chatgpt: "ChatGPT",
-				claude: "Claude"
+				claude: "Claude",
+				gemini: "Gemini",
+				grok: "Grok"
 			}[platform] || platform;
-		}
-		_platformIcon(platform) {
-			return {
-				chatgpt: "🤖",
-				claude: "🧠"
-			}[platform] || "💬";
 		}
 		_formatDate(date) {
 			if (!date) return "";
-			const d = new Date(date);
-			if (isNaN(d.getTime())) return "";
-			return d.toLocaleDateString("en-US", {
-				month: "short",
+			return new Date(date).toLocaleDateString("en-US", {
+				month: "numeric",
 				day: "numeric",
 				year: "numeric"
 			});
@@ -6783,9 +6710,6 @@
 			return name.replace(/[<>:"/\\|?*]/g, "").replace(/\s+/g, "_").slice(0, 100) || "chat_export";
 		}
 	};
-	//#endregion
-	//#region src/styles/shadow.css?inline
-	var shadow_default = "/**\n * Shadow CSS — Injected into Shadow DOM\n * All extension UI styles, scoped and isolated from the host page.\n */\n\n:host {\n  all: initial;\n  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;\n  color-scheme: dark light;\n}\n\n*,\n*::before,\n*::after {\n  box-sizing: border-box;\n  margin: 0;\n  padding: 0;\n}\n\n/* ─── Design Tokens ─────────────────────────────────────────────────── */\n:host {\n  --at-bg: #0f0f14;\n  --at-bg-2: #17171f;\n  --at-bg-3: #1e1e2a;\n  --at-surface: #22222e;\n  --at-surface-2: #2a2a38;\n  --at-border: rgba(255,255,255,0.08);\n  --at-border-hover: rgba(255,255,255,0.16);\n\n  --at-accent: #7c6df0;\n  --at-accent-hover: #9585f5;\n  --at-accent-glow: rgba(124,109,240,0.3);\n\n  --at-text: #e8e8f0;\n  --at-text-muted: #8888a0;\n  --at-text-faint: #555565;\n\n  --at-success: #34d399;\n  --at-warning: #fbbf24;\n  --at-danger: #f87171;\n\n  --at-radius-sm: 6px;\n  --at-radius: 10px;\n  --at-radius-lg: 16px;\n  --at-radius-xl: 20px;\n\n  --at-shadow: 0 4px 24px rgba(0,0,0,0.4);\n  --at-shadow-lg: 0 8px 48px rgba(0,0,0,0.6);\n  --at-shadow-accent: 0 0 24px var(--at-accent-glow);\n\n  --at-transition: 0.18s cubic-bezier(0.4, 0, 0.2, 1);\n  --at-sidebar-width: 240px;\n}\n\n/* ─── Scrollbars ─────────────────────────────────────────────────────── */\n::-webkit-scrollbar { width: 4px; height: 4px; }\n::-webkit-scrollbar-track { background: transparent; }\n::-webkit-scrollbar-thumb { background: var(--at-border-hover); border-radius: 2px; }\n::-webkit-scrollbar-thumb:hover { background: var(--at-text-faint); }\n\n/* ─── Sidebar ─────────────────────────────────────────────────────────── */\n.at-sidebar {\n  width: var(--at-sidebar-width);\n  background: var(--at-bg-2);\n  border-bottom: 1px solid var(--at-border);\n  padding: 8px 0 4px;\n  overflow: hidden;\n}\n\n.at-sidebar-header {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  padding: 6px 12px;\n  margin-bottom: 4px;\n}\n\n.at-sidebar-title {\n  font-size: 10px;\n  font-weight: 600;\n  letter-spacing: 0.08em;\n  text-transform: uppercase;\n  color: var(--at-text-faint);\n}\n\n.at-icon-btn {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 22px;\n  height: 22px;\n  border: none;\n  background: transparent;\n  border-radius: var(--at-radius-sm);\n  color: var(--at-text-muted);\n  cursor: pointer;\n  transition: background var(--at-transition), color var(--at-transition);\n}\n\n.at-icon-btn:hover {\n  background: var(--at-surface);\n  color: var(--at-text);\n}\n\n.at-icon-btn svg {\n  width: 14px;\n  height: 14px;\n  flex-shrink: 0;\n}\n\n/* ─── Folder List ─────────────────────────────────────────────────────── */\n.at-folder-list {\n  list-style: none;\n  padding: 0 6px;\n  display: flex;\n  flex-direction: column;\n  gap: 1px;\n}\n\n.at-folder-item {\n  display: flex;\n  align-items: center;\n  gap: 6px;\n  padding: 5px 6px;\n  border-radius: var(--at-radius-sm);\n  cursor: pointer;\n  transition: background var(--at-transition);\n  user-select: none;\n  position: relative;\n}\n\n.at-folder-item:hover {\n  background: var(--at-surface);\n}\n\n.at-folder-item.at-active {\n  background: var(--at-surface-2);\n}\n\n.at-folder-item.at-drag-over {\n  background: var(--at-accent-glow);\n  outline: 1px dashed var(--at-accent);\n}\n\n.at-folder-icon {\n  font-size: 13px;\n  flex-shrink: 0;\n}\n\n.at-folder-name {\n  flex: 1;\n  font-size: 13px;\n  color: var(--at-text);\n  overflow: hidden;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n}\n\n.at-folder-count {\n  font-size: 10px;\n  color: var(--at-text-faint);\n  background: var(--at-surface);\n  padding: 1px 5px;\n  border-radius: 10px;\n}\n\n.at-folder-actions {\n  display: none;\n  gap: 2px;\n  position: absolute;\n  right: 4px;\n}\n\n.at-folder-item:hover .at-folder-actions {\n  display: flex;\n}\n\n/* ─── Pinned Chats ───────────────────────────────────────────────────── */\n.at-pinned-section {\n  padding: 0 6px 4px;\n}\n\n.at-pinned-chat {\n  display: flex;\n  align-items: center;\n  gap: 6px;\n  padding: 4px 6px;\n  border-radius: var(--at-radius-sm);\n  cursor: pointer;\n  text-decoration: none;\n  transition: background var(--at-transition);\n}\n\n.at-pinned-chat:hover {\n  background: var(--at-surface);\n}\n\n.at-pinned-chat-icon {\n  font-size: 11px;\n  flex-shrink: 0;\n}\n\n.at-pinned-chat-title {\n  font-size: 12px;\n  color: var(--at-text-muted);\n  overflow: hidden;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n}\n\n/* ─── Empty State ────────────────────────────────────────────────────── */\n.at-empty-state {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 6px;\n  padding: 16px 12px;\n  text-align: center;\n}\n\n.at-empty-icon {\n  font-size: 24px;\n  opacity: 0.4;\n}\n\n.at-empty-text {\n  font-size: 12px;\n  color: var(--at-text-faint);\n  line-height: 1.5;\n}\n\n/* ─── Search Modal Overlay ───────────────────────────────────────────── */\n.at-search-overlay {\n  position: fixed;\n  inset: 0;\n  z-index: 999999;\n  background: rgba(0, 0, 0, 0.65);\n  backdrop-filter: blur(8px);\n  -webkit-backdrop-filter: blur(8px);\n  display: flex;\n  align-items: flex-start;\n  justify-content: center;\n  padding-top: 10vh;\n  animation: at-overlay-in var(--at-transition) ease;\n}\n\n@keyframes at-overlay-in {\n  from { opacity: 0; }\n  to { opacity: 1; }\n}\n\n.at-search-modal {\n  width: 640px;\n  max-width: calc(100vw - 32px);\n  max-height: 70vh;\n  background: var(--at-bg-2);\n  border: 1px solid var(--at-border);\n  border-radius: var(--at-radius-xl);\n  box-shadow: var(--at-shadow-lg), var(--at-shadow-accent);\n  overflow: hidden;\n  display: flex;\n  flex-direction: column;\n  animation: at-modal-in 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);\n}\n\n@keyframes at-modal-in {\n  from { opacity: 0; transform: translateY(-20px) scale(0.97); }\n  to { opacity: 1; transform: translateY(0) scale(1); }\n}\n\n.at-search-header {\n  display: flex;\n  align-items: center;\n  gap: 10px;\n  padding: 14px 16px;\n  border-bottom: 1px solid var(--at-border);\n}\n\n.at-search-icon {\n  font-size: 16px;\n  flex-shrink: 0;\n  color: var(--at-accent);\n}\n\n.at-search-input {\n  flex: 1;\n  background: transparent;\n  border: none;\n  outline: none;\n  font-size: 16px;\n  font-family: inherit;\n  color: var(--at-text);\n  placeholder-color: var(--at-text-muted);\n}\n\n.at-search-input::placeholder {\n  color: var(--at-text-faint);\n}\n\n.at-search-shortcut {\n  font-size: 11px;\n  color: var(--at-text-faint);\n  background: var(--at-surface);\n  padding: 2px 7px;\n  border-radius: 4px;\n  border: 1px solid var(--at-border);\n  white-space: nowrap;\n}\n\n.at-search-results {\n  flex: 1;\n  overflow-y: auto;\n  padding: 8px;\n}\n\n.at-search-platform-group {\n  margin-bottom: 8px;\n}\n\n.at-search-platform-label {\n  display: flex;\n  align-items: center;\n  gap: 6px;\n  padding: 4px 8px;\n  font-size: 10px;\n  font-weight: 600;\n  letter-spacing: 0.08em;\n  text-transform: uppercase;\n  color: var(--at-text-faint);\n}\n\n.at-search-platform-dot {\n  width: 6px;\n  height: 6px;\n  border-radius: 50%;\n}\n\n.at-platform-dot-chatgpt { background: #10a37f; }\n.at-platform-dot-claude { background: #d97706; }\n\n.at-search-result {\n  display: flex;\n  align-items: center;\n  gap: 10px;\n  padding: 9px 12px;\n  border-radius: var(--at-radius);\n  cursor: pointer;\n  transition: background var(--at-transition);\n  text-decoration: none;\n}\n\n.at-search-result:hover,\n.at-search-result.at-selected {\n  background: var(--at-surface);\n}\n\n.at-result-icon {\n  font-size: 14px;\n  flex-shrink: 0;\n}\n\n.at-result-info {\n  flex: 1;\n  min-width: 0;\n}\n\n.at-result-title {\n  font-size: 13px;\n  font-weight: 500;\n  color: var(--at-text);\n  overflow: hidden;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n}\n\n.at-result-meta {\n  font-size: 11px;\n  color: var(--at-text-faint);\n  margin-top: 2px;\n}\n\n.at-result-arrow {\n  font-size: 12px;\n  color: var(--at-text-faint);\n  flex-shrink: 0;\n}\n\n.at-result-snippet {\n  font-size: 11px;\n  color: var(--at-text-muted);\n  margin-top: 2px;\n  overflow: hidden;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  max-width: 100%;\n}\n\nmark.at-highlight {\n  background: rgba(124, 109, 240, 0.25);\n  color: var(--at-accent-hover);\n  border-radius: 2px;\n  padding: 0 1px;\n}\n\n/* ─── Platform Pills ──────────────────────────────────────────────── */\n.at-search-platform-pills {\n  display: flex;\n  align-items: center;\n  gap: 6px;\n  padding: 6px 16px;\n  border-bottom: 1px solid var(--at-border);\n}\n\n.at-search-pill {\n  display: inline-flex;\n  align-items: center;\n  gap: 5px;\n  font-size: 11px;\n  color: var(--at-text-muted);\n  background: var(--at-surface);\n  padding: 3px 10px;\n  border-radius: 100px;\n  border: 1px solid var(--at-border);\n}\n\n.at-search-pill strong {\n  color: var(--at-text);\n  font-weight: 600;\n}\n\n/* ─── Selected result glow ────────────────────────────────────────── */\n.at-search-result.at-selected {\n  background: var(--at-surface);\n  outline: 1px solid var(--at-accent);\n  outline-offset: -1px;\n}\n\n.at-search-empty {\n  padding: 32px 16px;\n  text-align: center;\n  color: var(--at-text-faint);\n  font-size: 14px;\n}\n\n.at-search-footer {\n  display: flex;\n  align-items: center;\n  gap: 12px;\n  padding: 8px 16px;\n  border-top: 1px solid var(--at-border);\n  font-size: 11px;\n  color: var(--at-text-faint);\n}\n\n.at-kbd {\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  background: var(--at-surface);\n  border: 1px solid var(--at-border);\n  border-radius: 4px;\n  padding: 1px 5px;\n  font-size: 10px;\n  font-family: monospace;\n  color: var(--at-text-muted);\n}\n\n/* ─── Prompt Menu ─────────────────────────────────────────────────────── */\n.at-prompt-menu {\n  position: fixed;\n  z-index: 999998;\n  width: 320px;\n  max-height: 300px;\n  background: var(--at-bg-2);\n  border: 1px solid var(--at-border);\n  border-radius: var(--at-radius-lg);\n  box-shadow: var(--at-shadow-lg);\n  overflow: hidden;\n  display: flex;\n  flex-direction: column;\n  animation: at-modal-in 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);\n}\n\n.at-prompt-search {\n  display: flex;\n  align-items: center;\n  gap: 8px;\n  padding: 10px 12px;\n  border-bottom: 1px solid var(--at-border);\n}\n\n.at-prompt-search-icon {\n  font-size: 13px;\n  color: var(--at-accent);\n  flex-shrink: 0;\n}\n\n.at-prompt-search-input {\n  flex: 1;\n  background: transparent;\n  border: none;\n  outline: none;\n  font-size: 13px;\n  font-family: inherit;\n  color: var(--at-text);\n}\n\n.at-prompt-search-input::placeholder {\n  color: var(--at-text-faint);\n}\n\n.at-prompt-list {\n  flex: 1;\n  overflow-y: auto;\n  padding: 6px;\n}\n\n.at-prompt-item {\n  display: flex;\n  flex-direction: column;\n  gap: 2px;\n  padding: 8px 10px;\n  border-radius: var(--at-radius-sm);\n  cursor: pointer;\n  transition: background var(--at-transition);\n}\n\n.at-prompt-item:hover,\n.at-prompt-item.at-selected {\n  background: var(--at-surface);\n}\n\n.at-prompt-title {\n  font-size: 13px;\n  font-weight: 500;\n  color: var(--at-text);\n}\n\n.at-prompt-preview {\n  font-size: 11px;\n  color: var(--at-text-faint);\n  overflow: hidden;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n}\n\n/* ─── Export Button ───────────────────────────────────────────────────── */\n.at-export-btn {\n  display: inline-flex;\n  align-items: center;\n  gap: 6px;\n  padding: 6px 12px;\n  background: var(--at-surface);\n  border: 1px solid var(--at-border);\n  border-radius: var(--at-radius-sm);\n  color: var(--at-text-muted);\n  font-size: 12px;\n  font-family: inherit;\n  cursor: pointer;\n  transition: all var(--at-transition);\n  white-space: nowrap;\n}\n\n.at-export-btn:hover {\n  background: var(--at-surface-2);\n  border-color: var(--at-border-hover);\n  color: var(--at-text);\n}\n\n.at-export-dropdown {\n  position: absolute;\n  top: calc(100% + 6px);\n  right: 0;\n  width: 180px;\n  background: var(--at-bg-2);\n  border: 1px solid var(--at-border);\n  border-radius: var(--at-radius);\n  box-shadow: var(--at-shadow);\n  overflow: hidden;\n  z-index: 100;\n  animation: at-modal-in 0.15s ease;\n}\n\n.at-export-option {\n  display: flex;\n  align-items: center;\n  gap: 8px;\n  padding: 9px 12px;\n  cursor: pointer;\n  font-size: 13px;\n  color: var(--at-text-muted);\n  transition: background var(--at-transition);\n}\n\n.at-export-option:hover {\n  background: var(--at-surface);\n  color: var(--at-text);\n}\n\n/* ─── Inline Input (folder rename) ───────────────────────────────────── */\n.at-inline-input {\n  background: var(--at-surface-2);\n  border: 1px solid var(--at-accent);\n  border-radius: 4px;\n  color: var(--at-text);\n  font-size: 13px;\n  font-family: inherit;\n  padding: 2px 6px;\n  outline: none;\n  width: 100%;\n}\n\n/* ─── Variable Fill Dialog ────────────────────────────────────────────── */\n.at-var-dialog {\n  position: fixed;\n  inset: 0;\n  z-index: 9999999;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  background: rgba(0,0,0,0.7);\n  backdrop-filter: blur(6px);\n}\n\n.at-var-dialog-box {\n  width: 400px;\n  background: var(--at-bg-2);\n  border: 1px solid var(--at-border);\n  border-radius: var(--at-radius-xl);\n  box-shadow: var(--at-shadow-lg);\n  padding: 20px;\n  animation: at-modal-in 0.2s ease;\n}\n\n.at-var-dialog-title {\n  font-size: 15px;\n  font-weight: 600;\n  color: var(--at-text);\n  margin-bottom: 12px;\n}\n\n.at-var-dialog-label {\n  font-size: 12px;\n  color: var(--at-text-muted);\n  margin-bottom: 4px;\n  margin-top: 10px;\n}\n\n.at-var-dialog-input {\n  width: 100%;\n  background: var(--at-surface);\n  border: 1px solid var(--at-border);\n  border-radius: var(--at-radius-sm);\n  color: var(--at-text);\n  font-size: 13px;\n  font-family: inherit;\n  padding: 8px 10px;\n  outline: none;\n  transition: border-color var(--at-transition);\n}\n\n.at-var-dialog-input:focus {\n  border-color: var(--at-accent);\n}\n\n.at-var-dialog-actions {\n  display: flex;\n  gap: 8px;\n  margin-top: 16px;\n  justify-content: flex-end;\n}\n\n.at-btn {\n  padding: 7px 14px;\n  border-radius: var(--at-radius-sm);\n  font-size: 13px;\n  font-family: inherit;\n  cursor: pointer;\n  transition: all var(--at-transition);\n  border: 1px solid transparent;\n}\n\n.at-btn-primary {\n  background: var(--at-accent);\n  color: white;\n  border-color: var(--at-accent);\n}\n\n.at-btn-primary:hover {\n  background: var(--at-accent-hover);\n}\n\n.at-btn-ghost {\n  background: transparent;\n  color: var(--at-text-muted);\n  border-color: var(--at-border);\n}\n\n.at-btn-ghost:hover {\n  background: var(--at-surface);\n  color: var(--at-text);\n}\n\n/* ─── Tooltip ────────────────────────────────────────────────────────── */\n.at-tooltip {\n  position: absolute;\n  background: var(--at-bg);\n  color: var(--at-text);\n  font-size: 11px;\n  padding: 4px 8px;\n  border-radius: 5px;\n  border: 1px solid var(--at-border);\n  pointer-events: none;\n  white-space: nowrap;\n  z-index: 99999;\n  animation: at-overlay-in 0.1s ease;\n}\n\n/* ─── Context menu ───────────────────────────────────────────────────── */\n.at-context-menu {\n  position: fixed;\n  z-index: 9999999;\n  background: var(--at-bg-2);\n  border: 1px solid var(--at-border);\n  border-radius: var(--at-radius);\n  box-shadow: var(--at-shadow);\n  overflow: hidden;\n  min-width: 160px;\n  animation: at-modal-in 0.12s ease;\n}\n\n.at-context-item {\n  display: flex;\n  align-items: center;\n  gap: 8px;\n  padding: 8px 12px;\n  font-size: 13px;\n  color: var(--at-text-muted);\n  cursor: pointer;\n  transition: background var(--at-transition);\n}\n\n.at-context-item:hover {\n  background: var(--at-surface);\n  color: var(--at-text);\n}\n\n.at-context-item.at-danger:hover {\n  background: rgba(248, 113, 113, 0.1);\n  color: var(--at-danger);\n}\n\n.at-context-separator {\n  height: 1px;\n  background: var(--at-border);\n  margin: 4px 0;\n}\n";
 	//#endregion
 	//#region src/content/injector.js
 	/**

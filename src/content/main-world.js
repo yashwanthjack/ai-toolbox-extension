@@ -3,14 +3,26 @@
  * Injected at document_start with world: "MAIN"
  * 
  * Patches window.fetch to intercept AI platform API responses,
- * extract chat data, and dispatch it to the ISOLATED content script
- * via CustomEvent (the only bridge between MAIN and ISOLATED worlds).
+ * extract chat data, and dispatch it to the ISOLATED content script.
  */
 
 (function patchFetch() {
   const originalFetch = window.fetch;
+  let authToken = null;
+  let hasStartedSync = false;
 
   window.fetch = async function (...args) {
+    // 1. Capture the Authorization token for background syncing
+    try {
+      if (args[1] && args[1].headers) {
+        const headers = new Headers(args[1].headers);
+        if (headers.has('Authorization')) authToken = headers.get('Authorization');
+      } else if (args[0] && typeof args[0] === 'object' && args[0].headers) {
+        const headers = new Headers(args[0].headers);
+        if (headers.has('Authorization')) authToken = headers.get('Authorization');
+      }
+    } catch (e) { }
+
     const response = await originalFetch.apply(this, args);
 
     try {
@@ -23,7 +35,7 @@
 
       if (!url) return response;
 
-      // ── ChatGPT: conversation list (MUST be checked BEFORE singular conversation) ──
+      // ── ChatGPT: conversation list (MUST be checked BEFORE singular) ───────
       if (url.includes('chatgpt.com/backend-api/conversations')) {
         const cloned = response.clone();
         cloned.json().then(data => {
@@ -34,11 +46,17 @@
                 platform: 'chatgpt',
                 title: item.title || 'Untitled',
                 url: `https://chatgpt.com/c/${item.id}`,
-                messages: [],
+                messages: null,
                 createdAt: item.create_time ? new Date(item.create_time * 1000) : new Date(),
                 updatedAt: item.update_time ? new Date(item.update_time * 1000) : new Date(),
               });
             });
+
+            // Trigger silent background sync to fetch all old chats
+            if (!hasStartedSync && authToken) {
+              hasStartedSync = true;
+              autoSyncChatGPT(authToken);
+            }
           }
         }).catch(() => { });
       }
@@ -60,7 +78,7 @@
               platform: 'claude',
               title: convo.name || 'Untitled',
               url: `https://claude.ai/chat/${convo.uuid}`,
-              messages: [],
+              messages: null,
               createdAt: convo.created_at ? new Date(convo.created_at) : new Date(),
               updatedAt: convo.updated_at ? new Date(convo.updated_at) : new Date(),
             });
@@ -98,6 +116,57 @@
     return response;
   };
 
+  // ── Background Auto-Syncer (Fetches ALL historical chats) ─────────────────
+  async function autoSyncChatGPT(token) {
+    console.log('[AI Toolbox] Starting silent background sync for older chats...');
+    let offset = 28; // ChatGPT natively loads the first 28 on load
+    let hasMore = true;
+    let totalSynced = 0;
+
+    // Loop through history 100 chats at a time (Capped at 3000 to be safe)
+    while (hasMore && offset < 3000) {
+      try {
+        const res = await originalFetch(`https://chatgpt.com/backend-api/conversations?offset=${offset}&limit=100`, {
+          headers: {
+            'Authorization': token,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!res.ok) break;
+        const data = await res.json();
+
+        if (data && data.items && data.items.length > 0) {
+          data.items.forEach(item => {
+            dispatchChatEvent({
+              id: `chatgpt_${item.id}`,
+              platform: 'chatgpt',
+              title: item.title || 'Untitled',
+              url: `https://chatgpt.com/c/${item.id}`,
+              messages: null,
+              createdAt: item.create_time ? new Date(item.create_time * 1000) : new Date(),
+              updatedAt: item.update_time ? new Date(item.update_time * 1000) : new Date(),
+            });
+          });
+
+          totalSynced += data.items.length;
+          offset += 100;
+
+          // If ChatGPT returned fewer than 100 chats, we reached the end of history
+          if (data.items.length < 100) hasMore = false;
+        } else {
+          hasMore = false;
+        }
+      } catch (e) {
+        hasMore = false;
+      }
+
+      // Wait 1.5 seconds between requests so OpenAI doesn't rate-limit the user
+      await new Promise(resolve => setTimeout(resolve, 1500));
+    }
+    console.log(`[AI Toolbox] Background sync complete. Grabbed ${totalSynced} older chats!`);
+  }
+
   // ── ChatGPT SSE stream parser ─────────────────────────────────────────────
   async function handleChatGPTStream(response, url) {
     const reader = response.body?.getReader();
@@ -123,15 +192,11 @@
 
         try {
           const json = JSON.parse(raw);
-
           if (json.conversation_id) chatId = json.conversation_id;
 
-          // Extract message from delta
           if (json.message?.content?.parts) {
             const role = json.message.author?.role || 'assistant';
-            const content = json.message.content.parts
-              .filter(p => typeof p === 'string')
-              .join('');
+            const content = json.message.content.parts.filter(p => typeof p === 'string').join('');
             if (content) {
               const existing = messages.findIndex(m => m.id === json.message.id);
               if (existing >= 0) messages[existing] = { id: json.message.id, role, content };
@@ -161,10 +226,7 @@
   function extractClaudeContent(content) {
     if (typeof content === 'string') return content;
     if (Array.isArray(content)) {
-      return content
-        .filter(c => c.type === 'text')
-        .map(c => c.text || '')
-        .join('');
+      return content.filter(c => c.type === 'text').map(c => c.text || '').join('');
     }
     return '';
   }
