@@ -22,7 +22,7 @@ chrome.runtime.onInstalled.addListener(async ({ reason }) => {
 
     // Open welcome page
     chrome.tabs.create({
-      url: 'https://chatgpt.com', // send user to ChatGPT to see the extension in action
+      url: 'https://chatgpt.com',
       active: true,
     });
   }
@@ -35,11 +35,10 @@ chrome.runtime.onInstalled.addListener(async ({ reason }) => {
 // ── Keyboard Command ───────────────────────────────────────────────────────────
 chrome.commands.onCommand.addListener(async (command) => {
   if (command === 'open-search') {
-    // Send message to the active tab's content script
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     if (tab?.id) {
       chrome.tabs.sendMessage(tab.id, { type: 'OPEN_SEARCH' }).catch(() => {
-        // Tab might not have content script (non-AI page), open popup instead
+        // Tab might not have content script (non-AI page)
       });
     }
   }
@@ -51,7 +50,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     chrome.storage.local.get('tier', (result) => {
       sendResponse({ tier: result.tier || 'free' });
     });
-    return true; // keep channel open for async response
+    return true;
   }
 
   if (message.type === 'SET_TIER') {
@@ -69,16 +68,28 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 });
 
-// ── Context Menu ───────────────────────────────────────────────────────────────
-chrome.contextMenus.create({
-  id: 'at-search',
-  title: '🔍 Search AI Chats (AI Toolbox)',
-  contexts: ['page'],
-  documentUrlPatterns: ['https://chatgpt.com/*', 'https://claude.ai/*'],
+// ── Context Menu (Wrapped in removeAll to prevent duplicate ID errors) ─────────
+chrome.runtime.onStartup.addListener(() => {
+  setupContextMenu();
 });
+
+chrome.runtime.onInstalled.addListener(() => {
+  setupContextMenu();
+});
+
+function setupContextMenu() {
+  chrome.contextMenus.removeAll(() => {
+    chrome.contextMenus.create({
+      id: 'at-search',
+      title: '🔍 Search AI Chats (AI Toolbox)',
+      contexts: ['page'],
+      documentUrlPatterns: ['https://chatgpt.com/*', 'https://claude.ai/*'],
+    });
+  });
+}
 
 chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   if (info.menuItemId === 'at-search' && tab?.id) {
-    chrome.tabs.sendMessage(tab.id, { type: 'OPEN_SEARCH' }).catch(() => {});
+    chrome.tabs.sendMessage(tab.id, { type: 'OPEN_SEARCH' }).catch(() => { });
   }
 });

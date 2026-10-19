@@ -19,24 +19,20 @@ export class ExportButton {
   }
 
   _tryMount() {
-    if (this._mounted) return;
+    // Check if the button is still actually in the live document
+    if (document.getElementById('at-export-wrapper')) return;
     const toolbar = this._findToolbar();
     if (!toolbar) return;
     this._mount(toolbar);
   }
 
   _findToolbar() {
-    // ChatGPT toolbar selectors (may change with updates)
-    const selectors = [
-      '[data-testid="conversation-turn-counter"]',
-      'header[data-testid]',
-      '.flex.items-center.justify-between.gap-2',
-    ];
-    for (const sel of selectors) {
-      const el = document.querySelector(sel);
-      if (el) return el.parentElement || el;
-    }
-    return null;
+    // Target ChatGPT's sticky top header bar on the right side
+    return (
+      document.querySelector('main .sticky.top-0 .flex.items-center.gap-2') ||
+      document.querySelector('header.sticky') ||
+      document.querySelector('[data-testid="conversation-turn-counter"]')?.parentElement
+    );
   }
 
   _mount(toolbar) {

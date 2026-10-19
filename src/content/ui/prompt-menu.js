@@ -2,8 +2,8 @@ import { getPrompts, incrementPromptUsage, checkLimit } from '../../db/db.js';
 
 /**
  * Prompt Library — // Slash Trigger
- * Watches the chat input box for "//" and shows a floating prompt picker.
- * Pressing Enter injects the selected prompt into the input.
+ * Watches the active chat box for "//" using a global document keyup listener
+ * to bypass React event handling inside contenteditable elements.
  */
 export class PromptMenu {
   constructor(shadowRoot, platform) {
@@ -19,65 +19,38 @@ export class PromptMenu {
   }
 
   _watchInputs() {
-    // Watch for new input elements appearing (SPA navigation)
-    const observer = new MutationObserver(() => this._attachToInputs());
-    observer.observe(document.body, { childList: true, subtree: true });
-    this._attachToInputs();
-  }
+    // Global keyup listener on the entire document to catch every keystroke
+    document.addEventListener('keyup', (e) => {
+      const activeEl = document.activeElement;
+      if (!activeEl) return;
 
-  _attachToInputs() {
-    const selectors = [
-      'textarea[placeholder*="message" i]',
-      'div[contenteditable="true"][role="textbox"]',
-      '#prompt-textarea',
-      '[data-testid="composer-input"]',
-    ];
+      const isInput =
+        activeEl.id === 'prompt-textarea' ||
+        activeEl.getAttribute('contenteditable') === 'true' ||
+        activeEl.tagName === 'TEXTAREA';
 
-    for (const selector of selectors) {
-      document.querySelectorAll(selector).forEach(input => {
-        if (input._atPromptAttached) return;
-        input._atPromptAttached = true;
-        this._bindInput(input);
-      });
-    }
+      if (!isInput) return;
+
+      const text = activeEl.contentEditable === 'true'
+        ? (activeEl.innerText || activeEl.textContent || '')
+        : (activeEl.value || '');
+
+      const slashMatch = text.match(/\/\/(\w*)$/);
+
+      if (slashMatch) {
+        this.triggerEl = activeEl;
+        this.slashStart = text.length - slashMatch[0].length;
+        if (!this.isOpen) {
+          this._openMenu(activeEl, slashMatch[1]);
+        }
+      } else if (this.isOpen && !text.includes('//')) {
+        this.close();
+      }
+    });
   }
 
   _bindInput(input) {
-    const isContentEditable = input.contentEditable === 'true';
-
-    input.addEventListener('input', (e) => {
-      const value = isContentEditable ? input.textContent : input.value;
-      const pos = isContentEditable ? this._getCaretPosition(input) : input.selectionStart;
-      const textBefore = value.slice(0, pos);
-      const slashMatch = textBefore.match(/\/\/(\w*)$/);
-
-      if (slashMatch) {
-        this.triggerEl = input;
-        this.slashStart = pos - slashMatch[0].length;
-        this._openMenu(input, slashMatch[1]);
-      } else if (this.isOpen) {
-        this.close();
-      }
-    });
-
-    input.addEventListener('keydown', (e) => {
-      if (!this.isOpen) return;
-
-      if (e.key === 'ArrowDown') {
-        e.preventDefault();
-        this.selectedIndex = Math.min(this.selectedIndex + 1, this.filteredPrompts.length - 1);
-        this._updateSelection();
-      } else if (e.key === 'ArrowUp') {
-        e.preventDefault();
-        this.selectedIndex = Math.max(this.selectedIndex - 1, 0);
-        this._updateSelection();
-      } else if (e.key === 'Enter' || e.key === 'Tab') {
-        e.preventDefault();
-        this._injectPrompt(this.filteredPrompts[this.selectedIndex]);
-      } else if (e.key === 'Escape') {
-        this.close();
-      }
-    });
+    // Handled globally by document keyup listener above
   }
 
   async _openMenu(inputEl, filter) {
@@ -92,9 +65,9 @@ export class PromptMenu {
     const q = query.toLowerCase();
     this.filteredPrompts = q
       ? this.prompts.filter(p =>
-          p.title.toLowerCase().includes(q) ||
-          p.body.toLowerCase().includes(q)
-        )
+        p.title.toLowerCase().includes(q) ||
+        p.body.toLowerCase().includes(q)
+      )
       : this.prompts;
   }
 
@@ -106,18 +79,20 @@ export class PromptMenu {
     menu.className = 'at-prompt-menu';
     menu.id = 'at-prompt-menu';
     menu.style.cssText = `
-      left: ${rect.left}px;
-      bottom: ${window.innerHeight - rect.top + 8}px;
+      position: fixed;
+      left: ${Math.max(20, rect.left)}px;
+      bottom: ${window.innerHeight - rect.top + 16}px;
+      z-index: 999998;
     `;
 
     if (this.filteredPrompts.length === 0) {
       menu.innerHTML = `
         <div class="at-prompt-search">
           <span class="at-prompt-search-icon">✨</span>
-          <input class="at-prompt-search-input" placeholder="// No prompts yet..." readonly />
+          <input class="at-prompt-search-input" placeholder="// No prompts saved yet..." readonly />
         </div>
-        <div class="at-search-empty" style="padding:16px;font-size:12px;">
-          Save prompts from the extension popup to use them here.
+        <div class="at-search-empty" style="padding:16px;font-size:12px;color:#8888a0;">
+          Add prompts in your extension popup first!
         </div>
       `;
     } else {
@@ -139,8 +114,11 @@ export class PromptMenu {
 
     this.shadow.appendChild(menu);
 
-    // Filter input
     const filterInput = menu.querySelector('#at-prompt-filter');
+    filterInput?.focus();
+
+    menu.addEventListener('mousedown', (e) => e.stopPropagation());
+
     filterInput?.addEventListener('input', (e) => {
       this._filterPrompts(e.target.value);
       const list = menu.querySelector('#at-prompt-list');
@@ -155,7 +133,6 @@ export class PromptMenu {
       }
     });
 
-    // Click to select
     menu.addEventListener('click', (e) => {
       const item = e.target.closest('.at-prompt-item');
       if (item) {
@@ -165,7 +142,6 @@ export class PromptMenu {
       }
     });
 
-    // Close on outside click
     setTimeout(() => {
       document.addEventListener('click', (e) => {
         if (!menu.contains(e.target) && e.target !== inputEl) {
@@ -180,29 +156,25 @@ export class PromptMenu {
     this.close();
 
     let body = prompt.body;
-
-    // Handle {{variable}} placeholders
     const vars = [...body.matchAll(/\{\{(\w+)\}\}/g)].map(m => m[1]);
     if (vars.length > 0) {
       const filled = await this._fillVariables(vars);
-      if (!filled) return; // user cancelled
+      if (!filled) return;
       for (const [varName, value] of Object.entries(filled)) {
         body = body.replaceAll(`{{${varName}}}`, value);
       }
     }
 
-    // Replace the "//" trigger text with the prompt
     const isContentEditable = this.triggerEl.contentEditable === 'true';
     if (isContentEditable) {
-      const text = this.triggerEl.textContent;
+      const text = this.triggerEl.textContent || '';
       this.triggerEl.textContent = text.slice(0, this.slashStart) + body + text.slice(this.slashStart);
     } else {
-      const val = this.triggerEl.value;
-      const end = this.triggerEl.selectionStart;
+      const val = this.triggerEl.value || '';
+      const end = this.triggerEl.selectionStart || val.length;
       this.triggerEl.value = val.slice(0, this.slashStart) + body + val.slice(end);
     }
 
-    // Trigger React's synthetic event so the AI platform sees the change
     this.triggerEl.dispatchEvent(new Event('input', { bubbles: true }));
     this.triggerEl.focus();
 
@@ -265,16 +237,7 @@ export class PromptMenu {
     this.shadow.getElementById('at-prompt-menu')?.remove();
   }
 
-  _getCaretPosition(el) {
-    const sel = window.getSelection();
-    if (!sel?.rangeCount) return 0;
-    const range = sel.getRangeAt(0).cloneRange();
-    range.selectNodeContents(el);
-    range.setEnd(sel.getRangeAt(0).endContainer, sel.getRangeAt(0).endOffset);
-    return range.toString().length;
-  }
-
   _esc(str) {
-    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 }

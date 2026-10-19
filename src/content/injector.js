@@ -3,12 +3,6 @@
  * 
  * This is the entry point that runs in the ISOLATED world (has access to
  * chrome.* APIs but NOT window.fetch directly).
- * 
- * It:
- * 1. Detects the platform (ChatGPT vs Claude)
- * 2. Waits for the sidebar DOM to appear
- * 3. Creates a Shadow DOM container and injects all UI
- * 4. Listens for chat data dispatched by main-world.js
  */
 
 import { indexChat } from '../db/search-index.js';
@@ -22,8 +16,8 @@ import shadowCSS from '../styles/shadow.css?inline';
 // ── Platform Detection ────────────────────────────────────────────────────────
 const hostname = window.location.hostname;
 const platform = hostname.includes('chatgpt.com') ? 'chatgpt'
-               : hostname.includes('claude.ai')   ? 'claude'
-               : null;
+  : hostname.includes('claude.ai') ? 'claude'
+    : null;
 
 if (!platform) {
   console.log('[AI Toolbox] Unknown platform, aborting injection.');
@@ -35,23 +29,43 @@ if (!platform) {
 async function init() {
   console.log(`[AI Toolbox] Initializing on ${platform}`);
 
+  // Avoid double-injection on SPA navigations
+  if (document.getElementById('ai-toolbox-root')) {
+    console.log('[AI Toolbox] Already injected, skipping.');
+    return;
+  }
+
   // Wait for the sidebar to exist in the DOM
-  const sidebar = await waitForElement(getSidebarSelector(platform), 8000);
-  if (!sidebar) {
-    console.warn('[AI Toolbox] Sidebar not found, retrying on navigation...');
+  const sidebar = await waitForElement(getSidebarSelector(platform), 10000);
+
+  if (sidebar) {
+    console.log('[AI Toolbox] Sidebar found:', sidebar.tagName, sidebar.className.slice(0, 60));
+  } else {
+    console.warn('[AI Toolbox] No sidebar found — injecting as floating panel');
   }
 
   // Create shadow DOM container
-  const { host, shadowRoot } = createShadowHost();
+  const { host, shadowRoot } = createShadowHost(!!sidebar);
 
-  // Inject above the sidebar (or fallback to body)
   if (sidebar) {
+    // Inject at the very top of the sidebar
     sidebar.insertBefore(host, sidebar.firstChild);
   } else {
+    // Fallback: fixed floating panel (bottom-left)
+    host.style.cssText = `
+      position: fixed;
+      bottom: 80px;
+      left: 16px;
+      width: 240px;
+      z-index: 999999;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      border-radius: 12px;
+      overflow: hidden;
+    `;
     document.body.appendChild(host);
   }
 
-  // Inject CSS into shadow root
+  // Inject CSS into shadow root (using native font stack to avoid CSP violations)
   const style = document.createElement('style');
   style.textContent = shadowCSS;
   shadowRoot.appendChild(style);
@@ -60,51 +74,71 @@ async function init() {
   renderSidebarContainer(shadowRoot);
 
   // Initialize UI components
-  const sidebarUI  = new SidebarUI(shadowRoot, platform);
+  const sidebarUI = new SidebarUI(shadowRoot, platform);
   const searchModal = new SearchModal(shadowRoot);
-  const promptMenu  = new PromptMenu(shadowRoot, platform);
-  const exportBtn   = new ExportButton(shadowRoot, platform);
+  const promptMenu = new PromptMenu(shadowRoot, platform);
+  const exportBtn = new ExportButton(shadowRoot, platform);
 
   await sidebarUI.render();
+  console.log('[AI Toolbox] UI rendered ✅');
 
-  // Listen for captured chat data from main-world.js
-  window.addEventListener('at_chat_captured', async (e) => {
+  // Serialized queue for captured chat data from main-world.js
+  let indexQueue = Promise.resolve();
+
+  window.addEventListener('at_chat_captured', (e) => {
     const chat = e.detail;
     if (!chat?.id) return;
-    console.log(`[AI Toolbox] Captured chat: ${chat.title} (${chat.platform})`);
-    await indexChat(chat);
-    // Re-render sidebar to reflect any new/updated chats
-    await sidebarUI.render();
+
+    indexQueue = indexQueue.then(async () => {
+      try {
+        await upsertChat(chat);
+        await indexChat(chat);
+        await sidebarUI.render();
+      } catch (err) {
+        console.warn('[AI Toolbox] Indexing error:', err);
+      }
+    });
   });
 
   // Handle SPA navigation — re-inject sidebar if it disappears
   observeNavigationChanges(sidebarUI, host, sidebar, shadowRoot, platform);
 
-  // Platform-specific draggable chats
+  // Platform-specific draggable chats + initial sidebar scrape
   enableDraggableChats(platform);
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 function getSidebarSelector(platform) {
   return {
-    chatgpt: 'nav[aria-label="Chat history"], nav.flex-col, aside, [data-testid="sidebar-history"]',
-    claude:  '[data-testid="sidebar"], nav[aria-label="Conversation list"], aside',
-  }[platform] || 'aside';
+    chatgpt: [
+      'nav[aria-label="Chat history"]',
+      '[data-testid="sidebar-history"]',
+      'nav[aria-label*="chat" i]',
+      '[scrollable="true"]',
+      'nav.flex-col',
+      'aside',
+      '#sidebar',
+      'div[class*="sidebar"]',
+    ].join(', '),
+    claude: [
+      '[data-testid="sidebar"]',
+      'nav[aria-label="Conversation list"]',
+      'nav[aria-label*="conversation" i]',
+      'aside',
+      'div[class*="sidebar"]',
+      '#sidebar',
+    ].join(', '),
+  }[platform] || 'aside, nav';
 }
 
-function createShadowHost() {
+function createShadowHost(inSidebar = true) {
   const host = document.createElement('div');
   host.id = 'ai-toolbox-root';
-  host.style.cssText = 'display:block; width:100%; position:relative; z-index:10;';
+  if (inSidebar) {
+    host.style.cssText = 'display:block; width:100%; position:relative; z-index:10;';
+  }
 
   const shadowRoot = host.attachShadow({ mode: 'open' });
-
-  // Load Inter font inside shadow DOM
-  const fontLink = document.createElement('link');
-  fontLink.rel = 'stylesheet';
-  fontLink.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap';
-  shadowRoot.appendChild(fontLink);
-
   return { host, shadowRoot };
 }
 
@@ -147,10 +181,8 @@ function waitForElement(selector, timeout = 5000) {
 }
 
 function observeNavigationChanges(sidebarUI, host, originalSidebar, shadowRoot, platform) {
-  // Watch for sidebar being removed/replaced (SPA nav)
   const observer = new MutationObserver(async () => {
     if (!document.contains(host)) {
-      // Re-inject
       const sidebar = await waitForElement(getSidebarSelector(platform), 3000);
       if (sidebar) {
         sidebar.insertBefore(host, sidebar.firstChild);
@@ -161,7 +193,6 @@ function observeNavigationChanges(sidebarUI, host, originalSidebar, shadowRoot, 
 
   observer.observe(document.body, { childList: true, subtree: true });
 
-  // Re-render on URL changes
   let lastUrl = window.location.href;
   const urlObserver = new MutationObserver(() => {
     if (window.location.href !== lastUrl) {
@@ -173,19 +204,42 @@ function observeNavigationChanges(sidebarUI, host, originalSidebar, shadowRoot, 
 }
 
 function enableDraggableChats(platform) {
-  const linkSelector = platform === 'chatgpt'
-    ? 'nav a[href^="/c/"]'
-    : 'a[href^="/chat/"]';
+  let linkSelector, idExtractor, urlBuilder;
 
-  const idExtractor = platform === 'chatgpt'
-    ? (href) => href.match(/\/c\/([a-z0-9-]+)/i)?.[1]
-    : (href) => href.match(/\/chat\/([a-z0-9-]+)/i)?.[1];
+  if (platform === 'chatgpt') {
+    linkSelector = 'nav a[href^="/c/"]';
+    idExtractor = (href) => href.match(/\/c\/([a-z0-9-]+)/i)?.[1];
+    urlBuilder = (id) => `https://chatgpt.com/c/${id}`;
+  } else if (platform === 'claude') {
+    linkSelector = 'a[href^="/chat/"]';
+    idExtractor = (href) => href.match(/\/chat\/([a-z0-9-]+)/i)?.[1];
+    urlBuilder = (id) => `https://claude.ai/chat/${id}`;
+  } else {
+    return;
+  }
 
   const makeLinks = () => {
     document.querySelectorAll(linkSelector).forEach(link => {
       if (link._atDraggable) return;
       link._atDraggable = true;
       link.draggable = true;
+
+      const rawId = idExtractor(link.href);
+      if (rawId) {
+        const fullId = `${platform}_${rawId}`;
+        const title = link.textContent?.trim() || 'Untitled';
+        window.dispatchEvent(new CustomEvent('at_chat_captured', {
+          detail: {
+            id: fullId,
+            platform,
+            title,
+            url: urlBuilder(rawId),
+            messages: null,
+            updatedAt: new Date(),
+          }
+        }));
+      }
+
       link.addEventListener('dragstart', (e) => {
         const id = idExtractor(link.href);
         if (id) e.dataTransfer.setData('text/at-chat-id', `${platform}_${id}`);

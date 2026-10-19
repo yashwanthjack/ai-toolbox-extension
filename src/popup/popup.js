@@ -1,12 +1,13 @@
 /**
  * Extension Popup — popup.js
  * Manages the Prompts, Folders, and Settings tabs.
- * Communicates with IndexedDB via db.js.
+ * Reads shared state via db.js (IndexedDB + chrome.storage.local bridge).
  */
 
 import {
   getPrompts, createPrompt, updatePrompt, deletePrompt,
   getFolders, createFolder, deleteFolder,
+  getAllChats,
   getSetting, setSetting,
   checkLimit, FREE_LIMITS,
   db
@@ -23,30 +24,41 @@ document.addEventListener('DOMContentLoaded', async () => {
   await loadStats();
   await loadTier();
   setupTabs();
+  setupStaticListeners();
   await loadPrompts();
   setupPromptForm();
   setupSettings();
 });
 
-// ── Stats ─────────────────────────────────────────────────────────────────────
+// ── Stats (Reads across ChatGPT + Claude + Popup via chrome.storage.local) ────
 async function loadStats() {
-  const [chatCount, folderCount, promptCount] = await Promise.all([
-    db.chats.count(),
-    db.folders.count(),
-    db.prompts.count(),
+  let chatCount = 0;
+  if (typeof chrome !== 'undefined' && chrome?.storage?.local) {
+    const res = await chrome.storage.local.get(['stat_chats']);
+    chatCount = res.stat_chats || 0;
+  }
+  if (!chatCount) {
+    const chats = await getAllChats();
+    chatCount = chats.length;
+  }
+
+  const [folders, prompts] = await Promise.all([
+    getFolders('all'),
+    getPrompts(),
   ]);
 
   document.getElementById('stat-chats').textContent = chatCount;
-  document.getElementById('stat-folders').textContent = folderCount;
-  document.getElementById('stat-prompts').textContent = promptCount;
+  document.getElementById('stat-folders').textContent = folders.length;
+  document.getElementById('stat-prompts').textContent = prompts.length;
 }
 
 // ── Tier display ──────────────────────────────────────────────────────────────
 async function loadTier() {
   const tier = await getSetting('tier', 'free');
   const tierEl = document.getElementById('popup-tier');
+  if (!tierEl) return;
   tierEl.textContent = tier === 'pro' ? 'Pro ✨' : 'Free';
-  if (tier === 'pro') tierEl.classList.add('pro');
+  tierEl.classList.toggle('pro', tier === 'pro');
 }
 
 // ── Tabs ──────────────────────────────────────────────────────────────────────
@@ -70,12 +82,8 @@ function setupTabs() {
   });
 }
 
-// ── Prompts ────────────────────────────────────────────────────────────────────
-async function loadPrompts() {
-  allPrompts = await getPrompts();
-  renderPrompts(allPrompts);
-
-  // Filter input
+// ── One-time listeners (prevents duplicate bindings on tab switch) ────────────
+function setupStaticListeners() {
   const searchInput = document.getElementById('prompt-search');
   searchInput?.addEventListener('input', (e) => {
     const q = e.target.value.toLowerCase();
@@ -84,6 +92,26 @@ async function loadPrompts() {
       : allPrompts;
     renderPrompts(filtered);
   });
+
+  document.getElementById('add-folder-btn')?.addEventListener('click', async () => {
+    const check = await checkLimit('folders');
+    if (!check.allowed) {
+      alert(`Free plan allows up to ${check.limit} folders. Upgrade to Pro for unlimited.`);
+      return;
+    }
+    const name = prompt('Folder name:');
+    if (name?.trim()) {
+      await createFolder({ name: name.trim() });
+      await loadFolders();
+      await loadStats();
+    }
+  });
+}
+
+// ── Prompts ───────────────────────────────────────────────────────────────────
+async function loadPrompts() {
+  allPrompts = await getPrompts();
+  renderPrompts(allPrompts);
 }
 
 function renderPrompts(prompts) {
@@ -192,9 +220,14 @@ async function savePrompt() {
   await loadStats();
 }
 
-// ── Folders ────────────────────────────────────────────────────────────────────
+// ── Folders ───────────────────────────────────────────────────────────────────
 async function loadFolders() {
-  allFolders = await getFolders();
+  const [folders, chats] = await Promise.all([
+    getFolders('all'),
+    getAllChats(),
+  ]);
+  allFolders = folders;
+
   const list = document.getElementById('folder-list');
   if (!list) return;
 
@@ -207,11 +240,9 @@ async function loadFolders() {
       </div>
     `;
   } else {
-    // Get chat counts
     const counts = {};
     for (const folder of allFolders) {
-      const chats = await db.chats.where('folderId').equals(folder.id).count();
-      counts[folder.id] = chats;
+      counts[folder.id] = chats.filter(c => c.folderId === folder.id).length;
     }
 
     list.innerHTML = allFolders.map(f => `
@@ -236,29 +267,18 @@ async function loadFolders() {
       });
     });
   }
-
-  document.getElementById('add-folder-btn')?.addEventListener('click', async () => {
-    const check = await checkLimit('folders');
-    if (!check.allowed) {
-      alert(`Free plan allows up to ${check.limit} folders. Upgrade to Pro for unlimited.`);
-      return;
-    }
-    const name = prompt('Folder name:');
-    if (name?.trim()) {
-      await createFolder({ name: name.trim() });
-      await loadFolders();
-      await loadStats();
-    }
-  });
 }
 
 // ── Settings ──────────────────────────────────────────────────────────────────
 async function loadSettings() {
   const tier = await getSetting('tier', 'free');
-  const [folderCount, promptCount] = await Promise.all([
-    db.folders.count(),
-    db.prompts.count(),
+  const [folders, prompts] = await Promise.all([
+    getFolders('all'),
+    getPrompts(),
   ]);
+
+  const folderCount = folders.length;
+  const promptCount = prompts.length;
 
   document.getElementById('plan-name').textContent = tier === 'pro' ? 'Pro Plan ✨' : 'Free Plan';
   document.getElementById('limit-folders').textContent =
@@ -275,7 +295,6 @@ async function loadSettings() {
 }
 
 function setupSettings() {
-  // License key activation
   document.getElementById('activate-btn')?.addEventListener('click', async () => {
     const key = document.getElementById('license-input')?.value.trim();
     const statusEl = document.getElementById('license-status');
@@ -285,7 +304,6 @@ function setupSettings() {
     statusEl.className = 'license-status';
 
     try {
-      // For MVP: basic key validation (replace with real API call)
       const response = await fetch(`https://your-zoho-catalyst.com/api/verify-key`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -306,7 +324,6 @@ function setupSettings() {
           statusEl.className = 'license-status error';
         }
       } else {
-        // Offline demo mode — accept any key starting with AT-PRO
         if (key.toUpperCase().startsWith('AT-PRO')) {
           await setSetting('tier', 'pro');
           await setSetting('licenseKey', key);
@@ -324,7 +341,6 @@ function setupSettings() {
     }
   });
 
-  // Quick action buttons
   document.getElementById('open-chatgpt-btn')?.addEventListener('click', () => {
     chrome.tabs.create({ url: 'https://chatgpt.com' });
   });
@@ -337,16 +353,20 @@ function setupSettings() {
     if (!confirm('This will delete ALL local data (chats, folders, prompts). Are you sure?')) return;
     await db.delete();
     await db.open();
+    if (typeof chrome !== 'undefined' && chrome?.storage?.local) {
+      await chrome.storage.local.clear();
+    }
     alert('All data cleared.');
     await loadStats();
+    await loadPrompts();
+    await loadFolders();
   });
 }
 
-// ── Utility ───────────────────────────────────────────────────────────────────
 function esc(str) {
   return String(str || '')
-    .replace(/&/g,'&amp;')
-    .replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;');
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }

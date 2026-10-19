@@ -385,6 +385,56 @@
   flex-shrink: 0;
 }
 
+.at-result-snippet {
+  font-size: 11px;
+  color: var(--at-text-muted);
+  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+mark.at-highlight {
+  background: rgba(124, 109, 240, 0.25);
+  color: var(--at-accent-hover);
+  border-radius: 2px;
+  padding: 0 1px;
+}
+
+/* ─── Platform Pills ──────────────────────────────────────────────── */
+.at-search-platform-pills {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  border-bottom: 1px solid var(--at-border);
+}
+
+.at-search-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--at-text-muted);
+  background: var(--at-surface);
+  padding: 3px 10px;
+  border-radius: 100px;
+  border: 1px solid var(--at-border);
+}
+
+.at-search-pill strong {
+  color: var(--at-text);
+  font-weight: 600;
+}
+
+/* ─── Selected result glow ────────────────────────────────────────── */
+.at-search-result.at-selected {
+  background: var(--at-surface);
+  outline: 1px solid var(--at-accent);
+  outline-offset: -1px;
+}
+
 .at-search-empty {
   padding: 32px 16px;
   text-align: center;

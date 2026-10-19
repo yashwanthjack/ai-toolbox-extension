@@ -60,12 +60,12 @@ export class SidebarUI {
       </div>
       <ul class="at-folder-list" id="at-folder-list">
         ${folders.length === 0
-          ? `<li class="at-empty-state">
+        ? `<li class="at-empty-state">
                <div class="at-empty-icon">📂</div>
                <div class="at-empty-text">No folders yet.<br>Click + to create one.</div>
              </li>`
-          : folders.map(f => this._renderFolder(f)).join('')
-        }
+        : folders.map(f => this._renderFolder(f)).join('')
+      }
       </ul>
     `;
   }
@@ -219,20 +219,29 @@ export class SidebarUI {
 
       if (targetEl) {
         targetEl.replaceWith(input);
+      } else {
+        // FIX: Mount the input at the top of the folder list when creating a new folder!
+        const folderList = this.shadow.getElementById('at-folder-list');
+        folderList?.prepend(input);
       }
 
       input.focus();
       input.select();
 
+      let finished = false;
       const done = (commit) => {
-        resolve(commit ? input.value : null);
+        if (finished) return; // Prevent Enter + Blur double trigger
+        finished = true;
+        const val = input.value;
         if (targetEl) input.replaceWith(targetEl);
-        input.remove();
+        else input.remove();
+        resolve(commit ? val : null);
       };
 
       input.addEventListener('keydown', (e) => {
+        e.stopPropagation(); // Stop ChatGPT/Claude from hijacking keystrokes
         if (e.key === 'Enter') { e.preventDefault(); done(true); }
-        if (e.key === 'Escape') done(false);
+        if (e.key === 'Escape') { e.preventDefault(); done(false); }
       });
       input.addEventListener('blur', () => done(false));
     });
@@ -245,7 +254,7 @@ export class SidebarUI {
   }
 
   _esc(str) {
-    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
   _svgPlus() {

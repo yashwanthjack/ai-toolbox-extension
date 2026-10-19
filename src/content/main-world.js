@@ -14,15 +14,16 @@
     const response = await originalFetch.apply(this, args);
 
     try {
-      const url = typeof args[0] === 'string' ? args[0] : args[0]?.url || '';
-
-      // ── ChatGPT: SSE conversation stream ─────────────────────────────────
-      if (url.includes('chatgpt.com/backend-api/conversation') && !url.includes('gen_title')) {
-        const cloned = response.clone();
-        handleChatGPTStream(cloned, url).catch(console.error);
+      let url = '';
+      if (typeof args[0] === 'string') {
+        url = args[0];
+      } else if (args[0] && typeof args[0] === 'object' && typeof args[0].url === 'string') {
+        url = args[0].url;
       }
 
-      // ── ChatGPT: conversation list ────────────────────────────────────────
+      if (!url) return response;
+
+      // ── ChatGPT: conversation list (MUST be checked BEFORE singular conversation) ──
       if (url.includes('chatgpt.com/backend-api/conversations')) {
         const cloned = response.clone();
         cloned.json().then(data => {
@@ -39,7 +40,13 @@
               });
             });
           }
-        }).catch(() => {});
+        }).catch(() => { });
+      }
+
+      // ── ChatGPT: SSE conversation stream (Singular) ──────────────────────
+      else if (url.includes('chatgpt.com/backend-api/conversation') && !url.includes('gen_title')) {
+        const cloned = response.clone();
+        handleChatGPTStream(cloned, url).catch(console.error);
       }
 
       // ── Claude: conversation list ─────────────────────────────────────────
@@ -58,11 +65,11 @@
               updatedAt: convo.updated_at ? new Date(convo.updated_at) : new Date(),
             });
           });
-        }).catch(() => {});
+        }).catch(() => { });
       }
 
       // ── Claude: single conversation with messages ─────────────────────────
-      if (url.includes('claude.ai/api/organizations') && url.includes('/conversations/') && !url.includes('/messages')) {
+      else if (url.includes('claude.ai/api/organizations') && url.includes('/conversations/') && !url.includes('/messages')) {
         const cloned = response.clone();
         cloned.json().then(data => {
           if (data?.uuid) {
@@ -81,7 +88,7 @@
               updatedAt: data.updated_at ? new Date(data.updated_at) : new Date(),
             });
           }
-        }).catch(() => {});
+        }).catch(() => { });
       }
 
     } catch (e) {
@@ -100,7 +107,6 @@
     let buffer = '';
     const messages = [];
     let chatId = '';
-    let conversationTitle = '';
 
     while (true) {
       const { done, value } = await reader.read();
@@ -127,18 +133,16 @@
               .filter(p => typeof p === 'string')
               .join('');
             if (content) {
-              // Update or append message
               const existing = messages.findIndex(m => m.id === json.message.id);
               if (existing >= 0) messages[existing] = { id: json.message.id, role, content };
               else messages.push({ id: json.message.id, role, content });
             }
           }
-        } catch (_) {}
+        } catch (_) { }
       }
     }
 
     if (chatId) {
-      // Fetch title separately from URL
       const match = window.location.pathname.match(/\/c\/([a-z0-9-]+)/);
       if (match) chatId = match[1];
 
